@@ -5,13 +5,13 @@ var cards = (function() {
     cardSize: {
       width: 69,
       height: 94,
-      padding: 18
+      padding: 50
     },
     animationSpeed: 500,
     table: 'body',
     cardback: 'red',
     acesHigh: false,
-    cardsUrl: 'img/cards.png',
+    cardsUrl: 'img/cards(1)(1).png',
     blackJoker: false,
     redJoker: false,
     type: STANDARD,
@@ -19,9 +19,10 @@ var cards = (function() {
   };
   var zIndexCounter = 1;
   var all = []; //All the cards created.
-  var start = 1;
-  var end = start + 12;
-
+  var start = 9;
+  var end = start - 8;
+  
+    
   function mouseEvent(ev) {
     var card = $(this).data('card');
     if (card.container) {
@@ -31,6 +32,7 @@ var cards = (function() {
       }
     }
   }
+  
 
   function init(options) {
     if (options) {
@@ -56,18 +58,16 @@ var cards = (function() {
         opt.loop = 2;
         break;
     }
+    
 
     opt.table = $(opt.table)[0];
     if ($(opt.table).css('position') == 'static') {
       $(opt.table).css('position', 'relative');
     }
-    for (let l = 0; l < opt.loop; l++)
-      for (var i = start; i <= end; i++) {
-        all.push(new Card('h', i, opt.table));
-        all.push(new Card('s', i, opt.table));
+    for (var i = 1; i <= 8; i++) {
         all.push(new Card('d', i, opt.table));
         all.push(new Card('c', i, opt.table));
-      }
+    }
     if (opt.blackJoker) {
       all.push(new Card('bj', 0, opt.table));
     }
@@ -76,7 +76,7 @@ var cards = (function() {
     }
 
     $('.card').click(mouseEvent);
-    shuffle(all);
+    //shuffle(all);
   }
 
   function shuffle(deck) {
@@ -117,7 +117,10 @@ var cards = (function() {
     toString: function() {
       return this.name;
     },
-
+    
+    turnCard: function(cardDir){
+      this.faceUp = cardDir;
+    },
     moveTo: function(x, y, speed, callback) {
       var props = {
         top: y - (opt.cardSize.height / 2),
@@ -125,6 +128,7 @@ var cards = (function() {
       };
       $(this.el).animate(props, speed || opt.animationSpeed, callback);
     },
+
 
     rotate: function(angle) {
       $(this.el)
@@ -167,7 +171,7 @@ var cards = (function() {
   };
 
   function Container() {
-
+    
   }
 
   Container.prototype = new Array();
@@ -184,6 +188,7 @@ var cards = (function() {
     addCards: function(cards) {
       for (var i = 0; i < cards.length; i++) {
         var card = cards[i];
+
         if (card.container) {
           card.container.removeCard(card);
         }

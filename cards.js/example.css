@@ -7,7 +7,7 @@ body {
 	border-radius:8px; 
 	box-shadow:black 0px 0px 2px; 
 	width: 600px; 
-	background:#FFF; 
+	background:#111; 
 	margin:20px auto; 
 	border:solid 1px black; 
 	font-family: arial, sans-serif; 
@@ -36,7 +36,9 @@ h1 {
 	text-align:center;
 	padding:0px;
 	margin:10px auto;
+	color:white;
 }
+
 
 #card-table {
 	background-color:green;
@@ -71,3 +73,7 @@ footer a, footer a:visited{
 footer a:hover {
 	color:black;
 }
+.score{
+	color:white;
+}
+
