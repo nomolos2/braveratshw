@@ -1,15 +1,19 @@
 
 //Tell the library which element to use for the table
 cards.init({table:'#card-table', type:STANDARD});
-initMove=60;
+initMove=-10;
 let pointsWorth = [1,1];
 let scores = [0,0];
 let compShow = document.getElementById('comp');	
 let youShow = document.getElementById('you');	
-let abilities = {musician,princess,spy,assassin,ambassador,wizard,general,prince};
+let abilities = [musician,princess,spy,assassin,ambassador,wizard,general,prince];
+let generalPower=[0,0]
+let spyVal = null;
 youShow.innerHTML="You: "+ scores[0];
 
 compShow.innerHTML="Computer: "+scores[1];
+
+
 
 //Create a new deck of cards
 deck = new cards.Deck();
@@ -51,75 +55,163 @@ deck.click(function(card){
 		lowerhand.render();
 	}
 });
-function chooseWinner (rank1,rank2){
-	ranks = runSpecialAbilties(rank1,rank2);
+function chooseWinner (cards){
+	cards = runSpecialAbilties(cards);
 		
-    if (ranks[0] > ranks[1]){
-      points[0]=pointsWorth[0];
+    if (cards["rank"][0] > cards["rank"][1]){
+      cards["pointsStorer"][0]+=cards["pointsWorth"][0];
+	  cards["pointsWorth"][0]=1;
+	  cards["pointsWorth"][1]=1;
+
     }
-    else if(ranks[1] < ranks[0]) {
-      points[1]=pointsWorth[1];
+    else if(cards["rank"][1] > cards["rank"][0]) {
+		cards["pointsStorer"][1]+=cards["pointsWorth"][1];
+		cards["pointsWorth"][1]=1;
+		cards["pointsWorth"][0]=1;
+
+
     }
 	else {
-		pointsWorth = [pointsWorth[0]+1,pointsWorth[1]+1];
+		cards["pointsWorth"] = [cards["pointsWorth"][0]+1,cards["pointsWorth"][1]+1];
 	}
+	return cards;
   }
-
-function runSpecialAbilties(rank1,rank2)
-{
-	if(rank1==5 || rank2==5){
-		return(rank1,rank2)
+function otherNumber(number){
+	if(number==1){
+		return(0);
 	}
-		
-	return(rank1,rank2)
+	return(1);
+}
+function runSpecialAbilties(cards)
+{	
+	cards["rank"][0]+=cards["generalPower"][0];
+	cards["rank"][1]+=cards["generalPower"][1];
+
+	if(cards["immutableRank"][0]==5 || cards["immutableRank"][1]==5){
+		return(cards);
+	}
+	cards = abilities[cards["immutableRank"][0]](cards,0)	
+	cards = abilities[cards["immutableRank"][1]](cards,1)	
+
+	return(cards);
 
 }
-function prince(you,otherRank){
-	if(otherRank!=1&&otherRank!=0){
+function prince(cards,player){
+	if(cards["immutableRank"][otherNumber(player)]!=1
+	&&cards["immutableRank"][otherNumber(player)]!=7
+	&&cards["immutableRank"][otherNumber(player)]!=0){
+	cards["rank"]=[0,0];
+	cards["pointsStorer"][player]+=cards["pointsWorth"][player];
+	cards["pointsWorth"]=[0,0];	
+
+	}
+	return cards;
+}
+
+function general(cards,player){
+	cards["generalPower"][player]=2;
+	return cards;
+}
+function wizard(cards,player){
+	return cards;
+
+}
+function ambassador(cards,player){
+	cards["pointsWorth"][player]=cards["pointsWorth"][player]+1;
+	return cards;
+
+}
+function assassin(cards,player){
+	cards["rank"]=[-cards["rank"][0],-cards["rank"][1]];
+	return cards;
+}
+function spy(cards,player){
+	if(player===0){
+		cards["spyVal"] =playComputer();
 		
 	}
+	return cards;
 }
-function general(you,otherRank){
-
+function princess(cards,player){
+	if(cards["immutableRank"][otherNumber(player)]==7){
+		cards["rank"]=[0,0];
+		cards["pointsStorer"][player]+=4;
+		cards["pointsWorth"]=[0,0];		
+	}
+	return cards;
 }
-function wizard(you,otherRank){
-
+function musician(cards,player){
+	cards["rank"]=[0,0];
+	return cards;
 }
-function ambassador(you,otherRank){
+function basicBot(){
+	let upperHandCards = []
+	let lowerHandCards = []
+	for(i=0; i<=7;i++){
+		if(i in upperhand){
+			upperHandCards.append(i);
+		}
+		if(i in lowerHand){
+			lowerHandCards.append(i);
+		}
 
-}
-function assassin(you,otherRank){
+	
+	
+	}
+	let maxWins =0;
+	let mostWin =0;
+	for(i=0; i< upperHandCards.length;i++){
+		wins=0;
+		for(j=0; j< lowerHandCards.length;j++){
+			let cards = {"immutableRank":[lowerhand[j].rank,upperhand[i].rank],"rank":[lowerhand[j].rank,upperhand[i].rank],"pointsWorth":[1,1],"pointsStorer":[0,0],"generalPower":[0,0],spyVal:null};
+			wins+=chooseWinner(cards)[1]
 
-}
-function spy(you,otherRank){
-
-}
-function princess(you,otherRank){
-
-}
-function musician(you,otherRank){
-
+		}	
+		if (wins>maxWins){
+			maxWins=wins;
+			mostWin=i;
+	}	
+	return mostWin;
+}}
+function playComputer(){
+	initMove+=70;
+	let upperValue = basicBot();//Math.floor(Math.random()*upperhand.length);
+	upperhand[upperValue].showCard();
+	upperhand[upperValue].moveTo(initMove,200);
+	upperhand.splice(upperVal,1);
+	return(upperValue)
 }
 //Finally, when you click a card in your hand, if it's
 //the same suit or rank as the top card of the discard pile
 //then it's added to it
 lowerhand.click(function(card){
-		
+		upperVal=spyVal;
+		if(spyVal==null){
+			upperVal = playComputer();
+		}
+		spyVal=null;
 		card.moveTo(initMove,230);
-		let upperVal = Math.floor(Math.random()*upperhand.length);
-		upperhand[upperVal].showCard();
-		upperhand[upperVal].moveTo(initMove,200);
-		points = chooseWinner(card.rank,upperhand[upperVal].rank);
-		upperhand.splice(upperVal,1);
+		
+		let cards = {"immutableRank":[card.rank-1,upperhand[upperVal].rank],"rank":[card.rank-1,upperhand[upperVal].rank],"pointsWorth":pointsWorth,"pointsStorer":scores,"generalPower":generalPower,spyVal:null};
+		cards =chooseWinner(cards);
+		scores[0] = cards["pointsStorer"][0];
+		scores[1] = cards["pointsStorer"][1];
+		spyVal=cards["spyVal"];
+		
+		pointsWorth[0]=cards["pointsWorth"][0];
+		pointsWorth[1]=cards["pointsWorth"][1];
+		generalPower=cards["generalPower"];
+
+		//upperhand.splice(upperVal,1);
 		lowerhand = lowerhand.filter(hCard=>hCard!=card);
-		initMove+=70;
-		youShow.innerHTML="You: "+ points[0];
-		compShow.innerHTML="Computer: "+points[1];
+		youShow.innerHTML="You: "+ scores[0];
+		compShow.innerHTML="Computer: "+scores[1];
 		//discardPile.addCard(card);
 		//discardPile.render();
 		//lowerhand.render();
 	
 });
+
 
 
 //So, that should give you some idea about how to render a card game.
