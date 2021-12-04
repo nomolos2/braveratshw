@@ -126,7 +126,7 @@ function assassin(cards,player){
 	return cards;
 }
 function spy(cards,player){
-	if(player===0){
+	if(player===0&&cards["realGame"]==true){
 		cards["spyVal"] =playComputer();
 		
 	}
@@ -149,37 +149,52 @@ function basicBot(){
 	let lowerHandCards = []
 	for(i=0; i<=7;i++){
 		if(i in upperhand){
-			upperHandCards.append(i);
+			upperHandCards.push(i);
 		}
-		if(i in lowerHand){
-			lowerHandCards.append(i);
+		if(i in lowerhand){
+			lowerHandCards.push(i);
 		}
 
 	
 	
 	}
-	let maxWins =0;
-	let mostWin =0;
+	let maxWins = [0,0];
+	let winners = [0,0]
 	for(i=0; i< upperHandCards.length;i++){
 		wins=0;
 		for(j=0; j< lowerHandCards.length;j++){
-			let cards = {"immutableRank":[lowerhand[j].rank,upperhand[i].rank],"rank":[lowerhand[j].rank,upperhand[i].rank],"pointsWorth":[1,1],"pointsStorer":[0,0],"generalPower":[0,0],spyVal:null};
-			wins+=chooseWinner(cards)[1]
+			let cards = {"immutableRank":[lowerhand[j].rank-1,upperhand[i].rank-1],"rank":[lowerhand[j].rank-1,upperhand[i].rank-1],"pointsWorth":[1,1],"pointsStorer":[0,0],"generalPower":[0,0],spyVal:null, "realGame":false};
+			wins+=chooseWinner(cards)["pointsStorer"][1];
 
 		}	
-		if (wins>maxWins){
-			maxWins=wins;
-			mostWin=i;
-	}	
-	return mostWin;
-}}
+		if (wins>maxWins[0]){
+			maxWins[0]=wins;
+			winners[0]=i;
+		
+		}	
+		else if (wins>maxWins[1]){
+			maxWins[1]=wins;
+			winners[1]=i;
+		}
+	
+}
+	console.log(winners)
+	return winners[Math.floor((Math.random()*2))];	}
 function playComputer(){
 	initMove+=70;
-	let upperValue = basicBot();//Math.floor(Math.random()*upperhand.length);
+	let upperValue = basicBot(); //Math.floor(Math.random()*upperhand.length);
 	upperhand[upperValue].showCard();
 	upperhand[upperValue].moveTo(initMove,200);
-	upperhand.splice(upperVal,1);
+	upperhand.splice(upperValue,1);
 	return(upperValue)
+}
+function removeEverything(){
+	while(upperhand.length>0){
+		upperhand.removeCard(upperhand[0])
+	}
+	while(lowerhand.length>0){
+		lowerhand.removeCard(lowerhand[0])
+	}
 }
 //Finally, when you click a card in your hand, if it's
 //the same suit or rank as the top card of the discard pile
@@ -192,7 +207,7 @@ lowerhand.click(function(card){
 		spyVal=null;
 		card.moveTo(initMove,230);
 		
-		let cards = {"immutableRank":[card.rank-1,upperhand[upperVal].rank],"rank":[card.rank-1,upperhand[upperVal].rank],"pointsWorth":pointsWorth,"pointsStorer":scores,"generalPower":generalPower,spyVal:null};
+		let cards = {"immutableRank":[card.rank-1,upperhand[upperVal].rank],"rank":[card.rank-1,upperhand[upperVal].rank],"pointsWorth":pointsWorth,"pointsStorer":scores,"generalPower":generalPower,spyVal:null,"realGame":true};
 		cards =chooseWinner(cards);
 		scores[0] = cards["pointsStorer"][0];
 		scores[1] = cards["pointsStorer"][1];
@@ -206,10 +221,20 @@ lowerhand.click(function(card){
 		lowerhand = lowerhand.filter(hCard=>hCard!=card);
 		youShow.innerHTML="You: "+ scores[0];
 		compShow.innerHTML="Computer: "+scores[1];
+	
 		//discardPile.addCard(card);
 		//discardPile.render();
 		//lowerhand.render();
-	
+		if(scores[1]>=4){
+			alert("Computer won")
+			location.reload();
+
+		}
+		if(scores[0]>=4){
+			alert("You won")
+			location.reload();
+
+		}
 });
 
 
