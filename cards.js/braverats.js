@@ -178,8 +178,78 @@ function basicBot(){
 		}
 	
 }
-	console.log(winners)
-	return winners[Math.floor((Math.random()*2))];	}
+	return(maxWins[Math.floor(Math.random()*2)])
+}
+function factorial(num){
+	if(num>1){
+	return(num*factorial(num-1))}
+}
+function complicatedBot(){
+	let upperHandCards = []
+	let lowerHandCards = []
+	for(i=upperhand.length-1; i>=0;i--){
+		upperHandCards.push(upperhand[i].rank-1)
+		lowerHandCards.push(lowerhand[i].rank-1)
+
+	}
+	
+	
+	wins=[];
+
+	for(i=0; i< upperHandCards.length;i++){
+		wins.push(0);
+		for(j=0; j< lowerHandCards.length;j++){
+			let cards = {"immutableRank":[lowerhand[j].rank-1,upperhand[i].rank-1],"rank":[lowerhand[j].rank-1,upperhand[i].rank-1],"pointsWorth":pointsWorth,"pointsStorer":[0,0],"generalPower":[0,0],spyVal:null, "realGame":false};
+			result=chooseWinner(cards);
+			splicer1=[...upperHandCards];
+			splicer1.splice((cards.immutableRank[1]));
+			splicer2=[...lowerHandCards];
+			splicer2.splice((cards.immutableRank[0]));
+
+			wins[i]+=botProcces(result["pointsStorer"],result["pointsWorth"],splicer1,splicer2,result["generalPower"]);
+		}	
+			
+}
+	//console.log(winners)
+	return (wins.indexOf(Math.max(...wins)));	
+}
+function botProcces(points,pointsWorth,upperhandp,lowerhandp, generalHappened){
+	let upperHandCards = []
+	let lowerHandCards = []
+	for(i=0; i<=7;i++){
+		if(upperhandp.includes(i)){
+			upperHandCards.push(i);
+		}
+		if(lowerhandp.includes(i)){
+			lowerHandCards.push(i);
+		}
+
+	
+	
+	}
+	for(i=0; i< upperHandCards.length;i++){
+		wins.push(0);
+		for(j=0; j< lowerHandCards.length;j++){
+			let cards = {"immutableRank":[lowerHandCards[j],upperHandCards[i]],"rank":[lowerHandCards[j].rank,upperHandCards[i].rank],"pointsWorth":pointsWorth,"pointsStorer":points,"generalPower":generalHappened,spyVal:null, "realGame":false};
+			result=chooseWinner(cards);
+			if (result["pointsStorer"][0]>=4){
+				return(factorial(upperHandCards.length))
+			}
+			if (result["pointsStorer"][1]>=4||upperHandCards.length<1){
+				return(0)
+			}
+			console.log(result["pointsStorer"])
+			splicer1=[...upperHandCards];
+			splicer1.splice(splicer1.indexOf(cards.immutableRank[0]),1);
+			splicer2=[...lowerHandCards];
+			splicer2.splice(splicer1.indexOf(cards.immutableRank[0]),1);
+
+			return(botProcces(result["pointsStorer"],result["pointsWorth"],splicer1,splicer2,result["generalPower"]));
+		}	
+			
+}
+
+}
 function playComputer(){
 	initMove+=70;
 	let upperValue = basicBot(); //Math.floor(Math.random()*upperhand.length);
